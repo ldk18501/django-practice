@@ -26,10 +26,15 @@ def insert(request):
 
 def find(request):
     if request.method == 'GET':
-        # 直接就是一个json
-        print(mongo.db.users.find_one({"_id": "admin"}))
-        return HttpResponse('got it.')
-    return HttpResponse("Hello, world. You're at the polls index.")
+        username = request.GET.get('name')
+        if username is None:
+            lstUser = list()
+            for u in mongo.db.users.find():
+                lstUser.append(u)
+            return HttpResponse(json.dumps(lstUser))
+        else:
+            return HttpResponse(json.dumps(mongo.db.users.find_one({'_id': username})))
+    return HttpResponseBadRequest("not support method.")
 
 
 def update(request):
