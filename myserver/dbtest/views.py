@@ -15,13 +15,13 @@ def insert(request):
         print(jb)
         try:
             mongo.db.users.insert_one(
-                {'_id': jb['name'], 'password': jb['pwd']})
+                {'_id': jb['name'], 'password': jb['password']})
         except Exception as e:
             print(e)
             return HttpResponseBadRequest(e)
         else:
             return HttpResponse("inserted.")
-    return HttpResponseBadRequest("not support method.")
+    return HttpResponseBadRequest("method error.")
 
 
 def find(request):
@@ -34,12 +34,28 @@ def find(request):
             return HttpResponse(json.dumps(lstUser))
         else:
             return HttpResponse(json.dumps(mongo.db.users.find_one({'_id': username})))
-    return HttpResponseBadRequest("not support method.")
+    return HttpResponseBadRequest("method error.")
 
 
+@csrf_exempt
 def update(request):
-    return HttpResponse("Hello, world. You're at the polls index.")
+    if request.method == 'PUT':
+        try:
+            username = request.GET.get('name')
+            jb = json.loads(request.body.decode("utf-8"))
+            mongo.db.users.update_many({'_id': username}, {'$set': jb}, True)
+            return HttpResponse(json.dumps(mongo.db.users.find_one({'_id': username})))
+        except Exception as e:
+            print(e)
+            return HttpResponseBadRequest(e)
+    return HttpResponseBadRequest("method error.")
 
 
+@csrf_exempt
 def delete(request):
-    return HttpResponse("Hello, world. You're at the polls index.")
+    if request.method == 'DELETE':
+        # 测一下delete_one，实际应用不删数据只改status
+        username = request.GET.get('name')
+        mongo.db.users.delete_one({'_id': username})
+        return HttpResponse('deleted.')
+    return HttpResponseBadRequest("method error.")
