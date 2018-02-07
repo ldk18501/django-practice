@@ -57,5 +57,5 @@ def delete(request):
         # 测一下delete_one，实际应用不删数据只改status
         username = request.GET.get('name')
         mongo.db.users.delete_one({'_id': username})
-        return HttpResponse('deleted.')
+        return HttpResponse('deleted......')
     return HttpResponseBadRequest("method error.")
